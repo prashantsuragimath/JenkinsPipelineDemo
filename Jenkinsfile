@@ -28,7 +28,7 @@ pipeline {
         } 
         stage('Deploy') {
             steps {
-               deploy adapters: [tomcat9(credentialsId: '7b5b7950-998d-4f7b-9331-8f1f19d8741b', path: '', url: 'http://65.0.19.152:8081/')], contextPath: null, war: '**/.*war'
+               sh "scp -v -o StrictHostKeyChecking=no **/*.war root@${params.staging_server}:/opt/tomcat/webapps/"
                 
             }
         }
