@@ -1,34 +1,30 @@
-node{
+pipeline {
+    agent any
+    
+    tools {
+        maven 'M2_HOME'
+    }
 
-   def tomcatWeb = '/opt/tomcat9\\webapps'
-   def tomcatBin = '/opt/tomcat9\\bin'
-   def tomcatStatus = ''
-   stage('SCM Checkout'){
-     git 'https://github.com/cubeiplKumar/JenkinsPipelineDemo.git'
-   }
-   stage('Compile-Package-create-war-file'){
-      // Get maven home path
-      def mvnHome =  tool name: 'M2_HOME', type: 'maven'   
-      sh "${mvnHome}/bin/mvn package"
-      }
-/*   stage ('Stop Tomcat Server') {
-               sh ''' @ECHO OFF
-               wmic process list brief | find /i "tomcat" > NUL
-               IF ERRORLEVEL 1 (
-                    echo  Stopped
-               ) ELSE (
-               echo running
-                  "${tomcatBin}\\shutdown.sh"
-                  sleep(time:10,unit:"SECONDS") 
-               )
-'''
-   }*/
-   stage('Deploy to Tomcat'){
-     sh "copy target\\JenkinsPipeline.war \"${tomcatWeb}\\JenkinsPipeline.war\""
-   }
-      stage ('Start Tomcat Server') {
-         sleep(time:5,unit:"SECONDS") 
-         sh "${tomcatBin}\\startup.sh"
-         sleep(time:100,unit:"SECONDS")
-   }
+    stages {
+        stage('Checkout') {
+            steps {
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/devopscbabu/DevOpsAddressBook.git']]])
+            }
+        }
+        stage('Build') {
+            steps {
+            sh 'mvn clean compile'
+            }
+        }  
+        stage('Test') {
+            steps {
+            sh 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+            sh 'mvn clean package'
+            }
+        }    
+    }
 }
