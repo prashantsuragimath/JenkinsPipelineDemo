@@ -25,6 +25,18 @@ pipeline {
             steps {
             sh 'mvn clean package'
             }
-        }    
+            post{
+                success{
+                    eho "Archiving the Artifacts"
+                    archiveArtifacts artifacts: '**/target/*.war'
+                }
+            }
+        } 
+        stage("Deploy") {
+            steps {
+                deploy adapters: [tomcat9(credentialsId: '7b5b7950-998d-4f7b-9331-8f1f19d8741b', path: '', url: 'http://43.204.130.90:8081')], contextPath: null, war: '**/*.war'
+                
+            }
+        }
     }
 }
